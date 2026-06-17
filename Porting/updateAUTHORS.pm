@@ -30,6 +30,7 @@ $Text::Wrap::columns= 80;
 #   %s: subject
 #   %x00: print a byte from a hex code
 
+my $ca = '(trailers:key=Co-authored-by,separator=;,valueonly)';
 my %field_spec= (
     "an" => "author_name",
     "aN" => "author_name_mm",
@@ -42,6 +43,7 @@ my %field_spec= (
     "H"  => "commit_hash",
     "h"  => "abbrev_hash",
     "s"  => "commit_subject",
+    $ca  => "co_authors_list",
 );
 
 my $Collate= Unicode::Collate->new(level => 1, indentical => 1);
