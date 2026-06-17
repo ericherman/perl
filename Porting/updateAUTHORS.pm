@@ -1,6 +1,5 @@
 package Porting::updateAUTHORS;
-use strict;
-use warnings;
+use v5.36;
 use Data::Dumper;
 use Encode qw(encode_utf8 decode_utf8 decode);
 use Digest::SHA qw(sha256_base64);
@@ -30,6 +29,7 @@ $Text::Wrap::columns= 80;
 #   %s: subject
 #   %x00: print a byte from a hex code
 
+my $ca= '(trailers:key=Co-authored-by,separator=;,valueonly)';
 my %field_spec= (
     "an" => "author_name",
     "aN" => "author_name_mm",
@@ -42,6 +42,7 @@ my %field_spec= (
     "H"  => "commit_hash",
     "h"  => "abbrev_hash",
     "s"  => "commit_subject",
+    $ca  => "co_authors_list",
 );
 
 my $Collate= Unicode::Collate->new(level => 1, identical => 1);
@@ -265,28 +266,42 @@ sub read_commit_log {
         my $commit_info= {};
         $last_commit_info= $commit_info;
         @{$commit_info}{@field_names}= split /\t/, $line, 0 + @field_names;
+        my @author_fields= qw/
+            author_name
+            author_name_mm
+            author_email
+            author_email_mm
+            /;
+        $commit_info->{authors}= [ {
+                (map { ($_ => $commit_info->{$_}) } @author_fields),
+                author_good => undef,
+            },
+        ];
+        delete @{$commit_info}{@author_fields};
 
-        my $author_name_mm_canon=
-            $self->_make_name_author_info($commit_info, "author_name_mm");
+        my $author_good;
+        for my $author ($commit_info->{authors}->@*) {
+            my $author_name_mm_canon=
+                $self->_make_name_author_info($author, "author_name_mm");
 
+            my $author_name_real= $self->_make_name_simple($author, "author");
+
+            if (   $self->_keeper_digest($author_name_mm_canon)
+                && $self->_keeper_digest($author_name_real))
+            {
+                $self->_check_name_mailmap($author_name_mm_canon,
+                    $author_name_real, $commit_info, "author name");
+                $self->_register_author($author_name_mm_canon, "author");
+                $author_good= 1;
+            }
+        }
+
+        my $committer_good;
         my $committer_name_mm_canon=
             $self->_make_name_author_info($commit_info, "committer_name_mm");
 
-        my $author_name_real= $self->_make_name_simple($commit_info, "author");
-
         my $committer_name_real=
             $self->_make_name_simple($commit_info, "committer");
-
-        my ($author_good, $committer_good);
-
-        if (   $self->_keeper_digest($author_name_mm_canon)
-            && $self->_keeper_digest($author_name_real))
-        {
-            $self->_check_name_mailmap($author_name_mm_canon, $author_name_real,
-                $commit_info, "author name");
-            $self->_register_author($author_name_mm_canon, "author");
-            $author_good= 1;
-        }
 
         if (   $self->_keeper_digest($committer_name_mm_canon)
             && $self->_keeper_digest($committer_name_real))
@@ -296,9 +311,13 @@ sub read_commit_log {
             $self->_register_author($committer_name_mm_canon, "committer");
             $committer_good= 1;
         }
+
+        my $committer_is_an_author=
+            grep { $committer_name_mm_canon eq $_->{author_name_mm_canon} }
+            $commit_info->{authors}->@*;
         if (    $author_good
             and $committer_good
-            and $committer_name_mm_canon ne $author_name_mm_canon)
+            and not $committer_is_an_author)
         {
             $self->{who_stats}{$committer_name_mm_canon}{applied}++;
         }
