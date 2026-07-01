@@ -1,0 +1,23 @@
+
+##  `read_commit_log`
+
+- loops over git log output
+- updates $last_commit_info, and finishes processing on the beginning
+  of the next record or at the end of the loop
+- the work on $commit_info could effectively happen in the ^= processing
+  as all other branches end with a `next` (so the processing is weirdly
+  split in two)
+
+## `_make_name_author_info`
+
+- reads from $commit_info, and only the author/commit fields
+  to canonicalize
+- writes the _canon lines info $commit_info
+
+
+## Conclusion
+
+rather than having a list of co-authors in the $commit_info hash,
+it might be easier to duplicate the $commit_info, once per co-author
+and repeat the stats update processing for each of them.
+
