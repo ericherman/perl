@@ -20,7 +20,8 @@ __DATA__
 Christian Hansen, Craig A. Berry, Daniel Tang, Dmitrii Kuvaiskii, E. Choroba,
 Eric Herman, James Cook, James E Keenan, Karen Etheridge, Karl Williamson, Leon
 Timmermans, Lukas Mai, Nicolas R, Paul Evans, Philippe Bruhat (BooK), Richard
-Leach, Robert Rothenberg, Shirakata Kentaro, Steve Hay, Tony Cook.
+Leach, Robert Rothenberg, Shirakata Kentaro, Steve Hay, Thibault Duponchelle,
+Tony Cook.
 % perl Porting/updateAUTHORS.pl --who --from=v5.43.6 --to=v5.43.10
 Bartosz Jarzyna, Chris 'BinGOs' Williams, Christian Hansen, Craig A. Berry,
 Dagfinn Ilmari Mannsåker, Dan Church, Daniel Tang, David Mitchell, Dmitrii

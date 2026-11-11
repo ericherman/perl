@@ -29,6 +29,7 @@ $Text::Wrap::columns= 80;
 #   %s: subject
 #   %x00: print a byte from a hex code
 
+my $ca= '(trailers:key=Co-authored-by,separator=;,valueonly)';
 my %field_spec= (
     "an" => "author_name",
     "aN" => "author_name_mm",
@@ -41,6 +42,7 @@ my %field_spec= (
     "H"  => "commit_hash",
     "h"  => "abbrev_hash",
     "s"  => "commit_subject",
+    $ca  => "co_authors_list",
 );
 
 my $Collate= Unicode::Collate->new(level => 1, identical => 1);
@@ -286,6 +288,10 @@ sub read_commit_log {
             },
         ];
         delete @{$commit_info}{@author_fields};
+
+        # my @co_authors_raw = split /;/, $commit_info->{$ca} || "";
+        # my @co_authors;
+        # push $commit_info->{authors}->@*, @co_authors;
 
         my $author_good; # at least one author is not excluded
         for my $author ($commit_info->{authors}->@*) {
