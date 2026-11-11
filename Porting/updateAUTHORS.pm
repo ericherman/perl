@@ -29,6 +29,7 @@ $Text::Wrap::columns= 80;
 #   %s: subject
 #   %x00: print a byte from a hex code
 
+my $ca= '(trailers:key=Co-authored-by,separator=;,valueonly)';
 my %field_spec= (
     "an" => "author_name",
     "aN" => "author_name_mm",
@@ -41,6 +42,7 @@ my %field_spec= (
     "H"  => "commit_hash",
     "h"  => "abbrev_hash",
     "s"  => "commit_subject",
+    $ca  => "co_authors_list",
 );
 
 my $Collate= Unicode::Collate->new(level => 1, identical => 1);
@@ -211,6 +213,22 @@ sub finalize_commit_info {
     }
 }
 
+sub co_author_mailmap ($co_author_raw) {
+    state $mm_re= qr/\A\s*(.*)\s+<([^>]+)>\s*\z/;
+    return unless $co_author_raw =~ $mm_re;
+
+    my $co_author= {
+        author_name  => $1,
+        author_email => $2,
+    };
+    my $co_author_mm_raw= `git check-mailmap "$co_author_raw"`;
+    $co_author_mm_raw =~ $mm_re;
+    $co_author->{author_name_mm}= $1;
+    $co_author->{author_email_mm}= $2;
+
+    return $co_author;
+}
+
 sub read_commit_log {
     my ($self)= @_;
     my $author_info= $self->{author_info}   ||= {};
@@ -286,6 +304,9 @@ sub read_commit_log {
             },
         ];
         delete @{$commit_info}{@author_fields};
+
+        push $commit_info->{authors}->@*, map co_author_mailmap($_), split /;/,
+          $commit_info->{co_authors_list} || "";
 
         my $author_good; # at least one author is not excluded
         for my $author ($commit_info->{authors}->@*) {

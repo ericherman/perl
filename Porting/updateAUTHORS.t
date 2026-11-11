@@ -26,7 +26,8 @@ TAKAI Kousuke, Thibault Duponchelle, Tony Cook.
 Christian Hansen, Craig A. Berry, Daniel Tang, Dmitrii Kuvaiskii, E. Choroba,
 Eric Herman, James Cook, James E Keenan, Karen Etheridge, Karl Williamson, Leon
 Timmermans, Lukas Mai, Nicolas R, Paul Evans, Philippe Bruhat (BooK), Richard
-Leach, Robert Rothenberg, Shirakata Kentaro, Steve Hay, Tony Cook.
+Leach, Robert Rothenberg, Shirakata Kentaro, Steve Hay, Thibault Duponchelle,
+Tony Cook.
 % perl Porting/updateAUTHORS.pl --from=v5.43.6 --to=v5.43.10 --who
 Bartosz Jarzyna, Chris 'BinGOs' Williams, Christian Hansen, Craig A. Berry,
 Dagfinn Ilmari Mannsåker, Dan Church, Daniel Tang, David Mitchell, Dmitrii
@@ -37,29 +38,6 @@ Paul Evans, Paul Marquess, Philippe Bruhat (BooK), Ricardo Signes, Richard
 Leach, Robert Rothenberg, Samuel Young, Scott Baker, Sevan Janiyan, Shirakata
 Kentaro, Steve Hay, TAKAI Kousuke, Thibault Duponchelle, Toby Inkster, Tomasz
 Konojacki, Tony Cook.
-% perl Porting/updateAUTHORS.pl --from=v5.43.9 --to=v5.43.10 --rank --percentage
-#Pos | %Authored | Name                  
-#----+-----------+-----------------------
-#1   |     58.60 | Karl Williamson       
-#2   |      4.84 | Richard Leach         
-#3   |      4.84 | Tony Cook             
-#4   |      4.30 | Steve Hay             
-#5   |      3.76 | Eric Herman           
-#6   |      3.76 | Philippe Bruhat (BooK)
-#7   |      3.23 | Lukas Mai             
-#8   |      2.69 | James E Keenan        
-#9   |      2.15 | Craig A. Berry        
-#10  |      2.15 | Dmitrii Kuvaiskii     
-#11  |      1.61 | Karen Etheridge       
-#12  |      1.61 | Leon Timmermans       
-#13  |      1.61 | Paul Evans            
-#14  |      1.08 | E. Choroba            
-#15  |      1.08 | James Cook            
-#16  |      0.54 | Christian Hansen      
-#17  |      0.54 | Daniel Tang           
-#18  |      0.54 | Nicolas R             
-#19  |      0.54 | Robert Rothenberg     
-#20  |      0.54 | Shirakata Kentaro     
 % perl Porting/updateAUTHORS.pl --from=v5.43.6 --to=v5.43.7  --rank --percentage
 #Pos | %Authored | Name                
 #----+-----------+---------------------
@@ -77,6 +55,30 @@ Konojacki, Tony Cook.
 #12  |      0.83 | Samuel Young        
 #13  |      0.83 | TAKAI Kousuke       
 #14  |      0.83 | Thibault Duponchelle
+% perl Porting/updateAUTHORS.pl --from=v5.43.9 --to=v5.43.10 --rank --percentage
+#Pos | %Authored | Name                  
+#----+-----------+-----------------------
+#1   |     55.61 | Karl Williamson       
+#2   |      6.63 | Philippe Bruhat (BooK)
+#3   |      5.10 | Eric Herman           
+#4   |      4.59 | Richard Leach         
+#5   |      4.59 | Tony Cook             
+#6   |      4.08 | Steve Hay             
+#7   |      3.06 | Lukas Mai             
+#8   |      2.55 | James E Keenan        
+#9   |      2.04 | Craig A. Berry        
+#10  |      2.04 | Dmitrii Kuvaiskii     
+#11  |      1.53 | Karen Etheridge       
+#12  |      1.53 | Leon Timmermans       
+#13  |      1.53 | Paul Evans            
+#14  |      1.02 | E. Choroba            
+#15  |      1.02 | James Cook            
+#16  |      0.51 | Christian Hansen      
+#17  |      0.51 | Daniel Tang           
+#18  |      0.51 | Nicolas R             
+#19  |      0.51 | Robert Rothenberg     
+#20  |      0.51 | Shirakata Kentaro     
+#21  |      0.51 | Thibault Duponchelle  
 % perl Porting/updateAUTHORS.pl --from=v5.43.6 --to=v5.43.7  --thanks-applied
 #Pos | Applied | Name           
 #----+---------+----------------
@@ -778,11 +780,11 @@ Konojacki, Tony Cook.
 #Pos | Authored | Applied | Committed | Name                  
 #----+----------+---------+-----------+-----------------------
 #1   |      109 |       7 |       115 | Karl Williamson       
-#2   |        9 |       8 |        17 | Tony Cook             
-#3   |        9 |       0 |         4 | Richard Leach         
-#4   |        8 |       0 |         8 | Steve Hay             
-#5   |        7 |       2 |         9 | Philippe Bruhat (BooK)
-#6   |        7 |       0 |         7 | Eric Herman           
+#2   |       13 |       2 |         9 | Philippe Bruhat (BooK)
+#3   |       10 |       0 |         7 | Eric Herman           
+#4   |        9 |       8 |        17 | Tony Cook             
+#5   |        9 |       0 |         4 | Richard Leach         
+#6   |        8 |       0 |         8 | Steve Hay             
 #7   |        6 |       0 |         5 | Lukas Mai             
 #8   |        5 |       4 |         6 | James E Keenan        
 #9   |        4 |       0 |         4 | Craig A. Berry        
@@ -797,3 +799,4 @@ Konojacki, Tony Cook.
 #18  |        1 |       0 |         0 | Daniel Tang           
 #19  |        1 |       0 |         0 | Robert Rothenberg     
 #20  |        1 |       0 |         0 | Shirakata Kentaro     
+#21  |        1 |       0 |         0 | Thibault Duponchelle  
