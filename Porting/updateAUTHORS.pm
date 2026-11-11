@@ -1,6 +1,5 @@
 package Porting::updateAUTHORS;
-use strict;
-use warnings;
+use v5.36;
 use Data::Dumper;
 use Encode qw(encode_utf8 decode_utf8 decode);
 use Digest::SHA qw(sha256_base64);
@@ -163,8 +162,8 @@ sub git_status_porcelain {
 
 sub finalize_commit_info {
     my ($self, $commit_info)= @_;
-    my $author= $commit_info->{author_name_mm_canon};
-    my $author_stats= $self->{who_stats}{$author} ||= {};
+    my @authors= map $_->{author_name_mm_canon}, $commit_info->{authors}->@*;
+    my @author_stats= map $self->{who_stats}{$_} ||= {}, @authors;
 
     my $file_info= $commit_info->{files} ||= {};
     foreach my $file (keys %{$file_info}) {
@@ -172,32 +171,43 @@ sub finalize_commit_info {
             $self->{summary_stats}{num_files}++;
         }
         my $fs= $self->{file_stats}{$file}          ||= {};
-        my $afs= $author_stats->{file_stats}{$file} ||= {};
+        my @afs= map $_->{file_stats}{$file} ||= {}, @author_stats;
         my $added= $file_info->{$file}{lines_added};
         my $removed= $file_info->{$file}{lines_removed};
         my $delta= $file_info->{$file}{lines_delta};
         defined $_ and $_ eq "-" and undef $_ for $added, $removed;
 
         if (defined $added) {
-            for my $h ($author_stats, $fs, $afs) {
+            for my $h (@author_stats, $fs, @afs) {
                 $h->{lines_delta}   += $delta;
                 $h->{lines_added}   += $added;
                 $h->{lines_removed} += $removed;
             }
         }
         else {
-            $author_stats->{binary_change}++;
+            for my $author_stats (@author_stats) {
+                $author_stats->{binary_change}++;
+            }
             $fs->{binary_change}++;
-            $afs->{binary_change}++;
+            for my $afs (@afs) {
+                $afs->{binary_change}++;
+            }
         }
-        $afs->{commits}++
-            or $author_stats->{num_files}++;
+
+        for my $author (@authors) {
+            my $author_stats= $self->{who_stats}{$author};
+            my $afs= $author_stats->{file_stats}{$file};
+            $afs->{commits}++
+              or $author_stats->{num_files}++;
+        }
 
         $fs->{commits}++
             or $self->{summary_stats}{num_files}++;
 
-        $fs->{who}{$author}++
-            or $self->{summary_stats}{authors}++;
+        for my $author (@authors) {
+            $fs->{who}{$author}++
+              or $self->{summary_stats}{authors}++;
+        }
     }
 }
 
@@ -265,28 +275,41 @@ sub read_commit_log {
         my $commit_info= {};
         $last_commit_info= $commit_info;
         @{$commit_info}{@field_names}= split /\t/, $line, 0 + @field_names;
+        my @author_fields= qw/
+            author_name
+            author_name_mm
+            author_email
+            author_email_mm
+            /;
+        $commit_info->{authors}= [ {
+                (map { ($_ => $commit_info->{$_}) } @author_fields),
+            },
+        ];
+        delete @{$commit_info}{@author_fields};
 
-        my $author_name_mm_canon=
-            $self->_make_name_author_info($commit_info, "author_name_mm");
+        my $author_good; # at least one author is not excluded
+        for my $author ($commit_info->{authors}->@*) {
+            my $author_name_mm_canon=
+                $self->_make_name_author_info($author, "author_name_mm");
 
+            my $author_name_real= $self->_make_name_simple($author, "author");
+
+            if (   $self->_keeper_digest($author_name_mm_canon)
+                && $self->_keeper_digest($author_name_real))
+            {
+                $self->_check_name_mailmap($author_name_mm_canon,
+                    $author_name_real, $commit_info, "author name");
+                $self->_register_author($author_name_mm_canon, "author");
+                $author_good= 1;
+            }
+        }
+
+        my $committer_good; # the committer is not excluded
         my $committer_name_mm_canon=
             $self->_make_name_author_info($commit_info, "committer_name_mm");
 
-        my $author_name_real= $self->_make_name_simple($commit_info, "author");
-
         my $committer_name_real=
             $self->_make_name_simple($commit_info, "committer");
-
-        my ($author_good, $committer_good);
-
-        if (   $self->_keeper_digest($author_name_mm_canon)
-            && $self->_keeper_digest($author_name_real))
-        {
-            $self->_check_name_mailmap($author_name_mm_canon, $author_name_real,
-                $commit_info, "author name");
-            $self->_register_author($author_name_mm_canon, "author");
-            $author_good= 1;
-        }
 
         if (   $self->_keeper_digest($committer_name_mm_canon)
             && $self->_keeper_digest($committer_name_real))
@@ -296,9 +319,13 @@ sub read_commit_log {
             $self->_register_author($committer_name_mm_canon, "committer");
             $committer_good= 1;
         }
+
+        my $committer_is_an_author=
+            grep { $committer_name_mm_canon eq $_->{author_name_mm_canon} }
+            $commit_info->{authors}->@*;
         if (    $author_good
             and $committer_good
-            and $committer_name_mm_canon ne $author_name_mm_canon)
+            and not $committer_is_an_author)
         {
             $self->{who_stats}{$committer_name_mm_canon}{applied}++;
         }
