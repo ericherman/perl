@@ -587,7 +587,7 @@ relevant data.
 
 =item C<--chainsaw>
 
-Show simple stats about whcih files had the most removals. Implies
+Show simple stats about which files had the most removals. Implies
 C<--numstat>. May be slow the first time it is used as git unpacks the
 relevant data.
 
